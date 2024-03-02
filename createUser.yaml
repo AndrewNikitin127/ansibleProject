@@ -1,28 +1,28 @@
-- hosts: all
-  gather_facts: no 
+- hosts: all        # применяем ко всем хостав из файла host.ini, файл указываем при вызове плейбука
+  gather_facts: no   # не собираем факты (переменные с информацией об хосте) при выполнении плейбука
 
   tasks:
-    - name: Add user ansible-worker with a password
+    - name: Add user ansible-worker with a password        # добавляем пользвателя
       user:
         name: ansible-worker
         state: present
-        generate_ssh_key: yes          # генерим ssh для пользователя
+        generate_ssh_key: yes          # генерим ssh для пользователя заодно генерится папка .ssh в домашней директории пользователя и файл authorized_keys где хранятся публичные ключи, тех кто может подключаться по ssh . Владельцем создаваемых файлов и папок будет нвый пользователь
         ssh_key_bits: 2048             # какой ssh
-        ssh_key_file: .ssh/id_rsa      # в этот файл
-      become: yes 
+        ssh_key_file: .ssh/id_rsa      # в этот файл  . будут созданы файлы id_rsa (не публичный ключ) и id_rsa.pub (публичный ключ)
+      become: yes                      # использовать sudo 
 
-    - name: Add git config file
+    - name: Add git config file       # добавляем сразу .gitconfig копируя из текущей папки из подпапки files. template используется , чтобы можно было использовать шаблонизатор j2
       ansible.builtin.template:    
         src: files/gitconfig
         dest:  /home/ansible-worker/.gitconfig
-        owner: ansible-worker
-        group: ansible-worker
+        owner: ansible-worker         # владелец создаваемого файла       
+        group: ansible-worker         # группа создаваемого файла
       become: yes # <---  выполнить из под рута
     
-    - name: Add pub key to user ansible-worker
+    - name: Add pub key to user ansible-worker    # копирум с заменой наш пуличный ключ из текущей директории, поддиректории ssh_keys , эта поддиректория находится в  .gitignore 
       ansible.builtin.template:    
-        src: ssh_keys/id_rsa.pub
-        dest:  /home/ansible-worker/.ssh/authorized_keys   #как видим в строках не обязательно использовать кавычки для переменных
-        owner: ansible-worker
-        group: ansible-worker
+        src: ssh_keys/id_rsa.pub                  # источник нашего файла
+        dest:  /home/ansible-worker/.ssh/authorized_keys  # записываем его как authorized_keys
+        owner: ansible-worker                    # владелец создаваемого файла 
+        group: ansible-worker                   # группа создаваемого файла
       become: yes # <---  выполнить из под рута

@@ -2,27 +2,27 @@
   gather_facts: no 
 
   tasks:
-    - name: Create a directory sites-available
+    - name: Create a directory sites-available      # создаем директорию sites-available где будет хранится конфиг нашего сайта ansible.iphilka.ru.conf
       ansible.builtin.file:
         path: /etc/nginx/sites-available/
         state: directory
-      become: yes
+      become: yes                                   # <---  выполнить из под рута
 
-    - name: Create a directory sites-enabled
+    - name: Create a directory sites-enabled        # создаем директорию sites-enabled где будет хранится ярлык на конфиг нашего сайта ansible.iphilka.ru.conf 
       ansible.builtin.file:
-        path: /etc/nginx/sites-enabled/
+        path: /etc/nginx/sites-enabled/             
         state: directory
-      become: yes
+      become: yes                                   # <---  выполнить из под рута
       
     - name: update ansible.iphilka.ru.conf
-      ansible.builtin.template:     # копируем/заменяем файл конфига сайтаб при этом используя шаблонизатор j2, который подставит значиния из наших переменных vars в src файл вместо указанных в нем наших переменных, при взаиможействии с этим файломю По факту это подстановка значений шаблонизатором , как интерпритатор подставляет значения при исполнении программы использование расширения .j2 не обязательно совсем и может даже не нада
+      ansible.builtin.template:     # копируем/заменяем файл конфига сайта ansible.iphilka.ru.conf при этом используя шаблонизатор j2, который подставит значиния из наших переменных vars в src файл вместо указанных в нем наших переменных, при взаиможействии с этим файломю По факту это подстановка значений шаблонизатором , как интерпритатор подставляет значения при исполнении программы использование расширения .j2 не обязательно совсем и может даже не нада
         src: files/ansible.iphilka.ru.conf
         dest: /etc/nginx/sites-available/ansible.iphilka.ru.conf
       notify:                   # если этот таск произвел изменение (желтая строка), а он произвел так как мы тот только что файл вставили, то запускается hadlers с именем restart nginx после исполнения всех таксков в  tasks
         - restart nginx
-      become: yes
+      become: yes                # <---  выполнить из под рута
 
-    - name: Create a symbolic link ansible.iphilka.ru.conf
+    - name: Create a symbolic link ansible.iphilka.ru.conf       # создаем ярлык на конфиг нашего сайта ansible.iphilka.ru.conf 
       ansible.builtin.file:
         src: /etc/nginx/sites-available/ansible.iphilka.ru.conf
         dest: /etc/nginx/sites-enabled/ansible.iphilka.ru.conf
@@ -30,12 +30,20 @@
       notify:                   # если этот таск произвел изменение (желтая строка), а он произвел так как мы тот только что файл вставили, то запускается hadlers с именем restart nginx после исполнения всех таксков в  tasks
         - restart nginx
       become: yes
+      
+    - name: stopped nginx       # останавливаем процессы nginx
+      ansible.builtin.service:
+        name: nginx
+        state: stopped
+      notify:                   # если этот таск произвел изменение (желтая строка),то запускается hadler с именем restart nginx после исполнения всех таксков в tasks
+        - restart nginx
+      become: yes               # <---  выполнить из под рута
 
-    - name: group control ansible-worker   # тут еще может возникнуть проблема что nginx демон уже запущен и не получится ему группу поменять поэтому останавливаю nginx
-      user:
+    - name: group control ansible-worker    # добавляем пользователя nginx (указан в кофниге nginx.conf в самом вверху) в группу пользоваетля  ansible-worker , у которого в домашней директории и лежит наш сайт
+      user:                     # тут еще может возникнуть проблема что nginx демон уже запущен и не получится ему группу поменять поэтому останавливаю nginx перед этим
         name: nginx
         groups: ansible-worker
-        append: yes
+        append: yes             # параметр означает что в группу ansible-worker мы добавляем пользователя nginx и эта группа пополняет список групп, в которых он состоит, и не становится его главной группой
       notify:                   # если этот таск произвел изменение (желтая строка), а он произвел так как мы тот только что файл вставили, то запускается hadlers с именем restart nginx после исполнения всех таксков в  tasks
         - restart nginx
       become: yes

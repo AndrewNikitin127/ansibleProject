@@ -2,25 +2,25 @@
   gather_facts: no 
 
   tasks:
-    - name: install nginx      # install lauest vers nginx
+    - name: install nginx      # устанавливаем посленю версию nginx
       ansible.builtin.apt:
         name: nginx
         state: latest
-        update_cache: yes
-      notify:                   # если этот таск произвел изменение (желтая строка), а он произвел так как мы тот только что файл вставили, то запускается hadlers с именем restart nginx после исполнения всех таксков в  tasks
+        update_cache: yes       # обновляем лист программ у установщика apt перед установкой
+      notify:                   # если этот таск произвел изменение (желтая строка),то запускается hadler с именем restart nginx после исполнения всех таксков в tasks
         - restart nginx
-      become: yes
+      become: yes               # <---  выполнить из под рута
       
-    - name: stopped nginx
+    - name: stopped nginx       # останавливаем процессы nginx
       ansible.builtin.service:
         name: nginx
         state: stopped
-      notify:
+      notify:                   # если этот таск произвел изменение (желтая строка),то запускается hadler с именем restart nginx после исполнения всех таксков в tasks
         - restart nginx
-      become: yes
+      become: yes               # <---  выполнить из под рута
 
-    - name: update nginx.conf
-      ansible.builtin.template:     # копируем/заменяем файл конфига сайтаб при этом используя шаблонизатор j2, который подставит значиния из наших переменных vars в src файл вместо указанных в нем наших переменных, при взаиможействии с этим файломю По факту это подстановка значений шаблонизатором , как интерпритатор подставляет значения при исполнении программы использование расширения .j2 не обязательно совсем и может даже не нада
+    - name: update nginx.conf     # копирум с заменой наш nginx.conf 
+      ansible.builtin.template:     # копируем/заменяем файл конфига nginx при этом используя шаблонизатор j2, который подставит значиния из наших переменных vars в src файл вместо указанных в нем наших переменных, при взаиможействии с этим файломю По факту это подстановка значений шаблонизатором , как интерпритатор подставляет значения при исполнении программы использование расширения .j2 использовать не обязательно совсем 
         src: files/nginx.conf
         dest: /etc/nginx/nginx.conf
       notify:                   # если этот таск произвел изменение (желтая строка), а он произвел так как мы тот только что файл вставили, то запускается hadlers с именем restart nginx после исполнения всех таксков в  tasks
@@ -29,7 +29,7 @@
 
   handlers:                         #handlers started after all tasks if in tasks be a notify with the same name 
     - name: restart nginx
-      ansible.builtin.service:
+      ansible.builtin.service:      # перезапускаем процессы nginx
         name: nginx
-        state: reloaded
+        state: reloaded            
       become: yes

@@ -1,13 +1,10 @@
-- hosts: all
-  gather_facts: no  
+- hosts: all              # применяем ко всем хостав из файла host.ini, файл указываем при вызове плейбука
+  gather_facts: no        # не собираем факты (переменные с информацией об хосте) при выполнении плейбука
 
   tasks:
-    - name: install git
+    - name: install git     # устанавливаем git из под рута
       ansible.builtin.apt:
         name: git
-        state: present
-        update_cache: yes
+        state: present      #  состояние "установлен", то есть если нет, установит
+        update_cache: yes   # обновляем лист программ у установщика apt перед установкой 
       become: yes # <---  выполнить из под рута
-
-#  ansible-playbook installGit.yml -i inventory.ini -K  
-# -K need to add sudo password
