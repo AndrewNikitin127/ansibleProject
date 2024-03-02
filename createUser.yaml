@@ -1,0 +1,28 @@
+- hosts: all
+  gather_facts: no 
+
+  tasks:
+    - name: Add user ansible-worker with a password
+      user:
+        name: ansible-worker
+        state: present
+        generate_ssh_key: yes          # генерим ssh для пользователя
+        ssh_key_bits: 2048             # какой ssh
+        ssh_key_file: .ssh/id_rsa      # в этот файл
+      become: yes 
+
+    - name: Add git config file
+      ansible.builtin.template:    
+        src: files/gitconfig
+        dest:  /home/ansible-worker/.gitconfig
+        owner: ansible-worker
+        group: ansible-worker
+      become: yes # <---  выполнить из под рута
+    
+    - name: Add pub key to user ansible-worker
+      ansible.builtin.template:    
+        src: ssh_keys/id_rsa.pub
+        dest:  /home/ansible-worker/.ssh/authorized_keys   #как видим в строках не обязательно использовать кавычки для переменных
+        owner: ansible-worker
+        group: ansible-worker
+      become: yes # <---  выполнить из под рута

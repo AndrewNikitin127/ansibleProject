@@ -1,0 +1,35 @@
+- hosts: all
+  gather_facts: no 
+
+  tasks:
+    - name: install nginx      # install lauest vers nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: latest
+        update_cache: yes
+      notify:                   # если этот таск произвел изменение (желтая строка), а он произвел так как мы тот только что файл вставили, то запускается hadlers с именем restart nginx после исполнения всех таксков в  tasks
+        - restart nginx
+      become: yes
+      
+    - name: stopped nginx
+      ansible.builtin.service:
+        name: nginx
+        state: stopped
+      notify:
+        - restart nginx
+      become: yes
+
+    - name: update nginx.conf
+      ansible.builtin.template:     # копируем/заменяем файл конфига сайтаб при этом используя шаблонизатор j2, который подставит значиния из наших переменных vars в src файл вместо указанных в нем наших переменных, при взаиможействии с этим файломю По факту это подстановка значений шаблонизатором , как интерпритатор подставляет значения при исполнении программы использование расширения .j2 не обязательно совсем и может даже не нада
+        src: files/nginx.conf
+        dest: /etc/nginx/nginx.conf
+      notify:                   # если этот таск произвел изменение (желтая строка), а он произвел так как мы тот только что файл вставили, то запускается hadlers с именем restart nginx после исполнения всех таксков в  tasks
+        - restart nginx
+      become: yes
+
+  handlers:                         #handlers started after all tasks if in tasks be a notify with the same name 
+    - name: restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded
+      become: yes

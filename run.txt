@@ -1,0 +1,6 @@
+ansible-playbook createUser.yaml -i hosts.ini -K
+ansible-playbook gitInstall.yaml -i hosts.ini -K
+ansible-playbook cloneGitRepo.yaml -i hosts.ini -K
+ansible-playbook installNginx.yaml -i hosts.ini -K
+ansible-playbook setupIphilkaNginxConf.yaml -i hosts.ini -K
+ansible-playbook setupIndexHtml.yaml -i hosts.ini -K

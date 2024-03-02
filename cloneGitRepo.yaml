@@ -1,0 +1,10 @@
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Read-write git checkout from github
+      ansible.builtin.git:
+        repo: https://github.com/iphilka/stud-template.git
+        dest: /home/ansible-worker/www/
+      become: yes # <---  выполнить из под рута
+      become_user: ansible-worker
