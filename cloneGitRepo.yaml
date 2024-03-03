@@ -1,10 +1,13 @@
 - hosts: all           # применяем ко всем хостав из файла host.ini, файл указываем при вызове плейбука
   gather_facts: no     # не собираем факты (переменные с информацией об хосте) при выполнении плейбука
-
+  
+  vars:
+    ansible_user: ansible-worker
+  
   tasks:
     - name: Read-write git checkout from github          # устанавливаем репозиторий
       ansible.builtin.git:
         repo: https://github.com/iphilka/stud-template.git
         dest: /home/ansible-worker/www/         #в эту папку
-      become: yes # <---  выполнить из под рута
-      become_user: ansible-worker     # созданные файлы и папки будут принадлежать владельцу и группе ansible-worker
+      # become: yes # <---  выполнить из под рута
+      # become_user: ansible-worker     # созданные файлы и папки будут принадлежать владельцу и группе ansible-worker
