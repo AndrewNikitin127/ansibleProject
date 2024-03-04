@@ -5,6 +5,6 @@
       - name: copy index.html from src      # обновляем наш файл с сайтом, беря его от сюда из папки files
         ansible.builtin.template:     # копируем/заменяем файл конфига сайта, при этом используя шаблонизатор j2, который подставит значиния из наших переменных vars в src файл вместо указанных в нем наших переменных, при взаиможействии с этим файломю По факту это подстановка значений шаблонизатором , как интерпритатор подставляет значения при исполнении программы использование расширения .j2 не обязательно совсем и может даже не нада
           src: files/index.html
-          dest: /home/ansible-worker/www/index.html
+          dest: /home/ansible-worker/www/stud-template/index.html
         become: yes
         become_user: ansible-worker    # владельцем файла будет группа и пользователь ansible-worker
